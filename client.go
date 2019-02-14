@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+import "crypto/tls"
+
 import (
 	"github.com/GaryBoone/GoStats/stats"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -129,6 +131,9 @@ func (c *Client) pubMessages(in, out chan *Message, doneGen, donePub chan bool) 
 		opts.SetUsername(c.BrokerUser)
 		opts.SetPassword(c.BrokerPass)
 	}
+    opts.SetTLSConfig(&tls.Config {
+    InsecureSkipVerify: true,
+	})
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 	token.Wait()
