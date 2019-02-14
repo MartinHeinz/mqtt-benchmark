@@ -2,89 +2,76 @@ MQTT benchmarking tool
 =========
 A simple MQTT (broker) benchmarking tool.
 
-Installation:
-
+Run using Docker:
 ```
-go get github.com/krylovsk/mqtt-benchmark
-```
-
-All dependencies are vendored with [manul](https://github.com/kovetskiy/manul).
-
-The tool supports multiple concurrent clients, configurable message size, etc:
-```
-> mqtt-benchmark --help
-Usage of mqtt-benchmark:
-  -broker="tcp://localhost:1883": MQTT broker endpoint as scheme://host:port
-  -clients=10: Number of clients to start
-  -count=100: Number of messages to send per client
-  -format="text": Output format: text|json
-  -password="": MQTT password (empty if auth disabled)
-  -qos=1: QoS for published messages
-  -quiet=false : Suppress logs while running (except errors and the result)
-  -size=100: Size of the messages payload (bytes)
-  -topic="/test": MQTT topic for incoming message
-  -username="": MQTT username (empty if auth disabled)
+docker build -t <name> .
+docker run -e "BROKER=<string: protocol://url:port>" \
+           -e "COUNT=<number>" \
+           -e "SIZE=<number>" \
+           -e "CLIENTS=<number>" \
+           -e "QOS=<number>" \
+           -e "USERNAME=<string>" \
+           -e "PASSWORD=<string>" \
+           --network <docker network ID (if broker is also running in docker)> \
+           <name>
 ```
 
-Two output formats supported: human-readable plain text and JSON.
-
-Example use and output:
+Example use:
 
 ```
-> mqtt-benchmark --broker tcp://broker.local:1883 --count 100 --size 100 --clients 100 --qos 2 --format text
-....
-
-======= CLIENT 27 =======
-Ratio:               1 (100/100)
-Runtime (s):         16.396
-Msg time min (ms):   9.466
-Msg time max (ms):   1880.769
-Msg time mean (ms):  150.193
-Msg time std (ms):   201.884
-Bandwidth (msg/sec): 6.099
-
-========= TOTAL (100) =========
-Total Ratio:                 1 (10000/10000)
-Total Runime (sec):          16.398
-Average Runtime (sec):       15.514
-Msg time min (ms):           7.766
-Msg time max (ms):           2034.076
-Msg time mean mean (ms):     140.751
-Msg time mean std (ms):      13.695
-Average Bandwidth (msg/sec): 6.761
-Total Bandwidth (msg/sec):   676.112
+docker build -t go-mqtt-bm .
+docker run -e "BROKER=tls://172.26.0.8:8883" \
+           -e "COUNT=2" \
+           -e "SIZE=100" \
+           -e "CLIENTS=2" \
+           -e "QOS=2" \
+           -e "USERNAME=admin" \
+           -e "PASSWORD=password" \
+           --network e7add65e3e97  \
+           go-mqtt-bm
 ```
 
-Similarly, in JSON:
-
+Output:
 ```
-> mqtt-benchmark --broker tcp://broker.local:1883 --count 100 --size 100 --clients 100 --qos 2 --format json --quiet
 {
-    runs: [
-        ...
+    "runs": [
         {
-            "id": 61,
-            "successes": 100,
+            "id": 1,
+            "successes": 2,
             "failures": 0,
-            "run_time": 16.142762197,
-            "msg_tim_min": 12.798859,
-            "msg_time_max": 1273.9553740000001,
-            "msg_time_mean": 147.66799521,
-            "msg_time_std": 152.08244221156286,
-            "msgs_per_sec": 6.194726700402251
+            "run_time": 0.027207317,
+            "msg_time_min": 0.290779,
+            "msg_time_max": 11.25084,
+            "msg_time_mean": 5.7708095,
+            "msg_time_std": 7.749933455318214,
+            "msgs_per_sec": 73.50963713180539
+        },
+        {
+            "id": 0,
+            "successes": 2,
+            "failures": 0,
+            "run_time": 0.027330115,
+            "msg_time_min": 0.20848,
+            "msg_time_max": 0.374784,
+            "msg_time_mean": 0.291632,
+            "msg_time_std": 0.1175946861384476,
+            "msgs_per_sec": 73.17934812934377
         }
-    ],
-    "totals": {
-        "successes": 10000,
-        "failures": 0,
-        "total_run_time": 16.153741746,
-        "avg_run_time": 15.14702422494,
-        "msg_time_min": 7.852086000000001,
-        "msg_time_max": 1285.241845,
-        "msg_time_mean_avg": 136.4360292677,
-        "msg_time_mean_std": 12.816965054355633,
-        "total_msgs_per_sec": 681.0374046459865,
-        "avg_msgs_per_sec": 6.810374046459865
+],
+"totals": {
+    "ratio": 1,
+    "successes": 4,
+    "failures": 0,
+    "total_run_time": 0.027368099,
+    "avg_run_time": 0.027268716,
+    "msg_time_min": 0.20848,
+    "msg_time_max": 11.25084,
+    "msg_time_mean_avg": 3.03122075,
+    "msg_time_mean_std": 3.874363565574755,
+    "total_msgs_per_sec": 146.68898526114916,
+    "avg_msgs_per_sec": 73.34449263057458
     }
 }
+
 ```
+
