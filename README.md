@@ -12,6 +12,7 @@ docker run -e "BROKER=<string: protocol://url:port>" \
            -e "QOS=<number>" \
            -e "USERNAME=<string>" \
            -e "PASSWORD=<string>" \
+           -e "TOPIC=<string>" \
            --network <docker network ID (if broker is also running in docker)> \
            <name>
 ```

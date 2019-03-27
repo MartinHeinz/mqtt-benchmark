@@ -7,4 +7,5 @@ go run main.go client.go --broker $BROKER \
                          --qos $QOS \
                          --username $USERNAME \
                          --password $PASSWORD \
+                         --password $TOPIC \
                          --format json --quiet
